@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Circle Tree Custom Login
+Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
