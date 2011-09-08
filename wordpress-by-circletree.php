@@ -4,7 +4,7 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 1.0
+Version: 1.1
 Author URI: http://mycircletree.com/
 */ 
 /**
@@ -87,14 +87,6 @@ function byct_menu () {
 function byct_scripts () {
 	wp_enqueue_script('farbtastic');
 	wp_enqueue_style('farbtastic');
-}
-function byct_page () {
-	if (!current_user_can('manage_options'))  {
-		wp_die( __('You do not have sufficient permissions to access this page.') );
-	}
-	$header_img = 'byct_header';
-	$header = get_option($header_img);
-	$email_address = get_option('byct_email_address');
 	if (isset($_POST)&&isset($_POST['post'])) {
 		check_admin_referer('byct');
 		update_option($header_img,$_POST['filename']);
@@ -105,9 +97,16 @@ function byct_page () {
 		update_option('byct_header_width',$_POST['header_width']);
 		update_option('byct_header_height',$_POST['header_height']);
 		update_option('byct_background_color',$_POST['color']);
-		
 		header("Location: ".$_SERVER['REQUEST_URI'].'&updated');
 	}
+}
+function byct_page () {
+	if (!current_user_can('manage_options'))  {
+		wp_die( __('You do not have sufficient permissions to access this page.') );
+	}
+	$header_img = 'byct_header';
+	$header = get_option($header_img);
+	$email_address = get_option('byct_email_address');
 	$email_enabled = (get_option('byct_email')==true ? ' checked' : '');
 	$lockdown_enabled = (get_option('byct_lockdown')==true ? ' checked' : '');
 	echo '
