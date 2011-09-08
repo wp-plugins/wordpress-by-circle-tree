@@ -1,0 +1,15 @@
+/*404 Not Found
+This file does not exist on the server.
+This file is an empty place holder.*/
+#login H1 A
+{
+	width: 450px;
+	height: 200px;
+}
+#login {
+		width: 450px;
+	}
+
+	#header-logo {
+		background-image: url(https://s3.amazonaws.com/myct2/footer-logo-16px.png) !important;
+	}
