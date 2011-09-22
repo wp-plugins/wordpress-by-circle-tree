@@ -7,10 +7,12 @@ Author: Circle Tree, LLC
 Version: 1.1
 Author URI: http://mycircletree.com/
 */ 
+session_start();
+//Remove WordPress from Head
+remove_action('wp_head', 'wp_generator'); 
 /**
  *  returns plugin path with NO trailing slash
  */
-session_start();
 function byct_get_plugin_path () {
 // default wordpress mu plugin path
 	$pluginPath = "/wp-content/mu-plugins/";
