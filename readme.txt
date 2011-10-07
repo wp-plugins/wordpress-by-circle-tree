@@ -9,7 +9,8 @@ Adds Circle Tree, LLC Custom Branding, Secure Login and Support Links for WordPr
 
 == Description ==
 Custom branding and secure WordPress login for Circle Tree Powered WordPress websites. 
-See [www.myCircleTree.com](http://mycircletree.com/) for more info about custom WordPress designs and plugins. 
+See [Orlando WordPress Design Company](http://mycircletree.com/) for more info about custom WordPress designs and plugins. 
+Also offering [High Performance WordPress Web Hosting](http://mycircletree.com/services/web-hosting/) to get the most out of your custom WordPress Web Design. 
 
 == Installation ==
 
