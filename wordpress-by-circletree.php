@@ -4,12 +4,42 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 1.3
+Version: 1.4
 Author URI: http://mycircletree.com/
 */ 
 session_start();
 //Remove WordPress from Head
-remove_action('wp_head', 'wp_generator'); 
+remove_action('wp_head', 'wp_generator');
+//Remove WordPress Admin Bar Pointer
+add_filter( 'show_wp_pointer_admin_bar', '__return_false' );
+function byct_admin_bar () {
+	global $wp_admin_bar;
+	$wp_admin_bar->remove_menu('wporg');
+	$wp_admin_bar->remove_menu('about');
+	$wp_admin_bar->add_menu(array(
+			'id'=>'ct-tutorials',
+			'parent'=>'wp-logo',
+			'title'=>"WordPress Video Tutorials",
+			'href'=>'http://mycircletree.com/client-area/knowledgebase.php?action=displaycat&catid=2',
+			'meta'=>array('target'=>'_blank')
+	));
+
+	$wp_admin_bar->add_menu(array(
+			'id'=>'ct-account-logo',
+			'parent'=>'wp-logo',
+			'title'=>"My Circle Tree Account",
+			'href'=>'https://mycircletree.com/client-area/',
+			'meta'=>array('target'=>'_blank')
+	));
+	$wp_admin_bar->add_menu(array(
+			'id'=>'ct-account-user',
+			'parent'=>'user-actions',
+			'title'=>"My Circle Tree Account",
+			'href'=>'https://mycircletree.com/client-area/',
+			'meta'=>array('target'=>'_blank')
+	));
+}
+add_action('admin_bar_menu', 'byct_admin_bar',50);
 /**
  *  returns plugin path with NO trailing slash
  */
@@ -71,6 +101,12 @@ function byct_admin_footer () {
 	echo '<a href="http://mycircletree.com/client-area/knowledgebase.php?action=displaycat&catid=2" target="_blank">WordPress Video Tutorials</a>';
 	echo ' | <a href="https://mycircletree.com/client-area/submitticket.php" target="_blank">Contact Circle Tree Support</a>';
 	echo ' | <a target="_blank" style="text-decoration:none;font-size:10px;color:#666" href="http://mycircletree.com">Site design &amp; hosting by Circle Tree <img style="vertical-align:middle;opacity:0.3;" width="30" height="30" alt="Website by Circle Tree" src="https://s3.amazonaws.com/myct2/footer-logo-30px.png"/></a>';
+	echo '<style>
+	#wp-admin-bar-wp-logo > .ab-item .ab-icon, 	#wpadminbar.nojs #wp-admin-bar-wp-logo:hover > .ab-item .ab-icon, #wpadminbar #wp-admin-bar-wp-logo.hover > .ab-item .ab-icon {
+			background-image: url("https://s3.amazonaws.com/myct2/footer-logo-16px.png");
+			background-position:center center;
+		}
+	</style>';
 }
 add_action('in_admin_footer', 'byct_admin_footer');
 function byct_remove_admin_footer () {
@@ -89,8 +125,11 @@ function byct_menu () {
 function byct_scripts () {
 	wp_enqueue_script('farbtastic');
 	wp_enqueue_style('farbtastic');
+}
+add_action('init','byct_save_options');
+function byct_save_options () {
 	if (isset($_POST)&&isset($_POST['post'])) {
-		check_admin_referer('byct');
+		if (!wp_verify_nonce($_REQUEST['byct_nonce'],'save_byct')) return;
 		update_option('byct_header',$_POST['filename']);
 		update_option('byct_email',$_POST['email']);
 		update_option('byct_email_address',$_POST['email_address']);
@@ -116,7 +155,7 @@ function byct_page () {
 	<h2>Circle Tree Login Page Options</h2>
 		<form method="POST" action="">';
 	if ( function_exists('wp_nonce_field') )
-		wp_nonce_field('byct');
+		wp_nonce_field('save_byct','byct_nonce');
 	echo '
 		<input type="hidden" name="post" value="true" />
 	<table width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -142,7 +181,7 @@ function byct_page () {
 			</td>
 		</tr>
 		<tr>
-			<th>Background Color</th>
+			<th>Login Page Background Color</th>
 			<td>
 				<input type="text" id="color" name="color" value="'.(get_option('byct_background_color') == "" ? '#FFFFFF' : get_option('byct_background_color')).'" />
 				<div id="colorpicker"></div>
@@ -150,8 +189,6 @@ function byct_page () {
 		</tr>
 	</table>
 	
-
-		
 		<input type="submit" value="Save" />
 		</form>
 		<script type="text/javascript">
