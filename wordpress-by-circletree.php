@@ -4,7 +4,7 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 1.4
+Version: 1.5
 Author URI: http://mycircletree.com/
 */ 
 session_start();
@@ -101,13 +101,20 @@ function byct_admin_footer () {
 	echo '<a href="http://mycircletree.com/client-area/knowledgebase.php?action=displaycat&catid=2" target="_blank">WordPress Video Tutorials</a>';
 	echo ' | <a href="https://mycircletree.com/client-area/submitticket.php" target="_blank">Contact Circle Tree Support</a>';
 	echo ' | <a target="_blank" style="text-decoration:none;font-size:10px;color:#666" href="http://mycircletree.com">Site design &amp; hosting by Circle Tree <img style="vertical-align:middle;opacity:0.3;" width="30" height="30" alt="Website by Circle Tree" src="https://s3.amazonaws.com/myct2/footer-logo-30px.png"/></a>';
-	echo '<style>
-	#wp-admin-bar-wp-logo > .ab-item .ab-icon, 	#wpadminbar.nojs #wp-admin-bar-wp-logo:hover > .ab-item .ab-icon, #wpadminbar #wp-admin-bar-wp-logo.hover > .ab-item .ab-icon {
-			background-image: url("https://s3.amazonaws.com/myct2/footer-logo-16px.png");
-			background-position:center center;
-		}
-	</style>';
+	echo byct_adminbar_logo_css();
 }
+function byct_adminbar_logo_css () {
+	return '<style>
+		#wp-admin-bar-wp-logo > .ab-item .ab-icon, 	#wpadminbar.nojs #wp-admin-bar-wp-logo:hover > .ab-item .ab-icon, #wpadminbar #wp-admin-bar-wp-logo.hover > .ab-item .ab-icon {
+				background-image: url("https://s3.amazonaws.com/myct2/footer-logo-16px.png");
+				background-position:center center;
+			}
+		</style>';
+}
+function byct_adminbar_logo_frontend () {
+	echo byct_adminbar_logo_css();
+}
+add_action('wp_footer', 'byct_adminbar_logo_frontend');
 add_action('in_admin_footer', 'byct_admin_footer');
 function byct_remove_admin_footer () {
 	return false;
