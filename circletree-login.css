@@ -11,3 +11,6 @@
 	#header-logo {
 		background-image: url(https://s3.amazonaws.com/myct2/footer-logo-16px.png) !important;
 	}
+
+#login_error {width:80%;margin:0px auto 20px auto;}	
+#login_error h1 { line-height:1.3}
