@@ -4,7 +4,7 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 1.6
+Version: 1.8
 Author URI: http://mycircletree.com/
 */ 
 //Start a session for login tracking if not already set
@@ -314,35 +314,34 @@ add_action('wp_authenticate','byct_login_lockdown');
 
 function byct_support_widget() {
 	echo ' <script type="text/javascript">
-	jQuery(document).ready(function($){
-function parseRSS(url, callback) {
-  $.ajax({
-    url: document.location.protocol + "//ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=4&callback=?&q=" + encodeURIComponent(url),
-    dataType: "json",
-    success: function(data) {
-      callback(data.responseData.feed);
-    }
-  });
-}
-var $news = $("#byct_news"); 
-	parseRSS("http://mycircletree.com/feed/", function  (data) {
-	$news.empty();
-	$.each(data.entries, function (k,entry) {
-		$("<li><h4><a target=\"_blank\" href=\""+entry.link+"\" title=\"View "+entry.title+" on our Website\">"+entry.title+"</a></h4><p>"+entry.contentSnippet+"<a style=\"float:right;\" target=\"_blank\" href=\""+entry.link+"\">Read more...</a></p></li>").appendTo($news); 
-	});
-	$news.append("<h3><a href=\"http://mycircletree.com/\" target=\"_blank\">Read more on the Circle Tree Blog</a></h3>")
-})
+jQuery(document).ready(function($){
+var $news = $("#byct_news_content"),
+	$refresh = $("#refreshCTNews"),
+	loadingString = "<li><h3>Loading Circle Tree News</h3></li>";
+ 	
+	$refresh.bind("click", function  () {
+		$news.append(loadingString);
+		$.ajax({
+		    url: document.location.protocol + "//ajax.googleapis.com/ajax/services/feed/load?v=1.0&num=4&callback=?&q=" + encodeURIComponent("http://mycircletree.com/feed/"),
+		    dataType: "json",
+		    success: function(data) {
+		      	$news.empty();
+		      	var str = "";
+				$.each(data.responseData.feed.entries, function (k,entry) {
+					str += "<li><h4><a target=\"_blank\" href=\""+entry.link+"\" title=\"View "+entry.title+" on our Website\">"+entry.title+"</a></h4><p>"+entry.contentSnippet+"<a style=\"float:right;\" target=\"_blank\" href=\""+entry.link+"\">Read more...</a></p></li>";
+				});
+				str +=	"<h3><a href=\"http://mycircletree.com/\" target=\"_blank\">Read more on the Circle Tree Blog</a></h3>";
+				$(str).appendTo($news); 
+		    }
+		});
+	  return false;
+	}).trigger("click");
 })
 	</script>';
-	echo ' <ul id="byct_news"><li><h3>Loading Circle Tree News</h3></li></ul>';
+	echo '<ul id="byct_news_content"></ul><a href="#" id="refreshCTNews" class="button">Refresh</a>';
 } 
 function byct_dashboard_widgets() {
-	/*
 	global $wp_meta_boxes;
-	echo '<pre>';
-print_r($wp_meta_boxes);
-echo '</pre>';
-*/
 	wp_add_dashboard_widget('byct_news', '<img style="vertical-align:middle;opacity:0.3;" width="30" height="30" alt="Website by Circle Tree" src="https://s3.amazonaws.com/myct2/footer-logo-30px.png"/> Circle Tree News', 'byct_support_widget');	
 	remove_meta_box( 'dashboard_secondary', 'dashboard', 'side' );
 	remove_meta_box( 'dashboard_primary', 'dashboard', 'side' );
