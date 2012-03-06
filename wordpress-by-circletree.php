@@ -7,11 +7,16 @@ Author: Circle Tree, LLC
 Version: 1.5
 Author URI: http://mycircletree.com/
 */ 
-session_start();
-//Remove WordPress from Head
+//Start a session for login tracking if not already set
+if (!isset($_SESSION))
+	session_start();
+
+//Remove WordPress/version # from Head
 remove_action('wp_head', 'wp_generator');
+
 //Remove WordPress Admin Bar Pointer
 add_filter( 'show_wp_pointer_admin_bar', '__return_false' );
+
 function byct_admin_bar () {
 	global $wp_admin_bar;
 	$wp_admin_bar->remove_menu('wporg');
@@ -42,16 +47,10 @@ function byct_admin_bar () {
 add_action('admin_bar_menu', 'byct_admin_bar',50);
 /**
  *  returns plugin path with NO trailing slash
+ *  TODO add mu support
  */
 function byct_get_plugin_path () {
-// default wordpress mu plugin path
-	$pluginPath = "/wp-content/mu-plugins/";
-	// change this to wordpress mu version that has the new login design
-	// is it wordpress mu or wordpress normal?
-	if(! is_dir($pluginPath)) {
-		$pluginPath = "/wp-content/plugins/";
-	}
-	return get_option('siteurl') . $pluginPath . plugin_basename(dirname(__FILE__)); 
+	return get_option('siteurl') . "/wp-content/plugins/" . plugin_basename(dirname(__FILE__)); 
 }
 function byct_stylesheet () {
 	// full plugin path
@@ -212,18 +211,22 @@ function byct_page () {
 function byct_failed_login () {
 	$_SESSION['byct_failed_logins'] += 1; 
 	if (get_option('byct_email')) {
-		$message = 'Failed Login Attempt.'.PHP_EOL.' UN:'.$_POST['log'].PHP_EOL.' PW: '.$_POST['pwd'].PHP_EOL.PHP_EOL;
-		$message .= 'IP Address: '.$_SERVER['REMOTE_ADDR'];
-		mail(get_option('byct_email_address'), 'Failed Login Attempt: '.get_option('blogname'), $message);	
+		$message = 'This is a message from your website: '.$_SERVER['PHP_SELF'].PHP_EOL.PHP_EOL;
+		$message .= 'Someone used the following to try to log into your website'.PHP_EOL.' Username:'.$_POST['log'].PHP_EOL.' Password: '.$_POST['pwd'].PHP_EOL.PHP_EOL;
+		$message .= 'From IP Address: <a target="_blank" href="http://www.ipchecking.com/?ip='.$_SERVER['REMOTE_ADDR'].'&check=Lookup">'.$_SERVER['REMOTE_ADDR'].'</a>';
+		$subject = "Someone is trying to log into your website.";
+		wp_mail(get_option('byct_email_address'), $subject, $message);
 	}
 }
 add_action('wp_login_failed','byct_failed_login');
 
 add_action('admin_menu','byct_menu');
 function byct_custom_form () {
-	echo  '<h2 style="text-align:center">Secure Login <img src="'.byct_get_plugin_path().'/lock.gif" height="" width="" alt="" /> <a target="_blank" style="text-decoration:none;color:#000" href="http://mycircletree.com">by Circle Tree <img style="vertical-align:middle;opacity:0.3;" width="30" height="30" alt="Website by Circle Tree" src="https://s3.amazonaws.com/myct2/footer-logo-30px.png"/></a></h2>';
+	echo  '<h2 style="text-align:center"><img src="'.byct_get_plugin_path().'/lock.gif" height="" width="" alt="Lock Icon" /> Secure Login <a target="_blank" style="text-decoration:none;color:#000" href="http://mycircletree.com">by Circle Tree <img style="vertical-align:middle;opacity:0.3;" width="30" height="30" alt="Website by Circle Tree" src="https://s3.amazonaws.com/myct2/footer-logo-30px.png"/></a></h2>';
 	echo  '<h3 style="text-align:center">IP Logged '.$_SERVER['REMOTE_ADDR'].'</h3>';
 }
+add_action('login_form', 'byct_custom_form');
+
 function byct_login_errors ($error) {
 	return '<h1>WARNING: Your IP Address has been logged, and a '.get_option('blogname').' administrator has been notified of this failed login attempt</h1>';
 }
@@ -232,7 +235,6 @@ function byct_login_success () {
 	unset($_SESSION['byct_failed_logins']);
 }
 add_action('wp_login', 'byct_login_success');
-add_action('login_form', 'byct_custom_form');
 function byct_login_lockdown () {
 	$numbers1 = array (
 					'4'=>'four',
@@ -257,12 +259,8 @@ function byct_login_lockdown () {
 			unset($_SESSION['byct_failed_logins']);
 			return;
 		} else if ((int)$_SESSION['byct_failed_logins'] > (int)get_option('byct_lockdown_count')) {
-			echo <<<EOL
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="content-type" content="text/html; charset=en-us" />
-<title></title>
+			//FIXME use wp_die instead of this
+			$str = <<<EOL
 <link rel="stylesheet" href="wp-admin/css/login.css" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" language="javascript"></script>
 <script type="text/javascript">
@@ -275,24 +273,22 @@ jQuery(document).ready(function($){
 	})
 })
 </script>
+			<style>#login_error{text-color:red;}</style>
 EOL;
-echo byct_theme_css();
-echo <<<EOL
-</head>
-<body class="lockdown">
+$str .= byct_theme_css();
+$str .= <<<EOL
 <div id="login">
 <form method="POST" action="">
 EOL;
-			echo '<h1>You have exceeded the number of login attempts</h1>';
+			$str .= '<h1>Too many login attempts</h1>';
 			if (isset($_POST['captcha_answer']) && ($_POST['captcha_answer'] !== $_SESSION['byct_captcha'])) {
 				sleep(5);
-				echo '<div id="login_error"><h1>Incorrect, please try again</h1></div>';
+				$str .= '<div id="login_error"><h1>Incorrect, please try again</h1></div>';
 			}
-			echo '<p>Please verify your humanity (this is to protect against brute force attacks)</p>';
+			$str .= '<p>Please verify your humanity (this is to protect against brute force attacks)</p>';
 			$operator = mt_rand(0, 2);
 			$number1 = mt_rand(4,11);
 			$number2 = mt_rand(3, 5);
-			print $answer;
 			switch ($operators[$operator]) {
 				case '*':
 					$_SESSION['byct_captcha'] = $number1*$number2;
@@ -304,13 +300,12 @@ EOL;
 					$_SESSION['byct_captcha'] = $number1-$number2;
 					break;
 			}
-			echo '<br/><br/><h2>'.$numbers1[$number1].' '.$operator_labels[$operator].' '.$numbers2[$number2].' equals </h2>
-				<input type="text" name="captcha_answer" size="10" /><input type="submit" name="" /></form>';
-			echo <<<EOL
+			$str .= '<br/><br/><h2>'.$numbers1[$number1].' '.$operator_labels[$operator].' '.$numbers2[$number2].' equals </h2>
+				<input type="text" name="captcha_answer" size="10" /><input type="submit" class="button" name="" /></form>';
+			$str .= <<<EOL
 			</div>
-			</body></html>
 EOL;
-			die();
+			wp_die($str,'RESTRICTED');
 		}
 	}
 }
@@ -349,7 +344,7 @@ function byct_dashboard_widgets() {
 print_r($wp_meta_boxes);
 echo '</pre>';
 */
-	wp_add_dashboard_widget('example_dashboard_widget', '<img style="vertical-align:middle;opacity:0.3;" width="30" height="30" alt="Website by Circle Tree" src="https://s3.amazonaws.com/myct2/footer-logo-30px.png"/> Circle Tree News', 'byct_support_widget');	
+	wp_add_dashboard_widget('byct_news', '<img style="vertical-align:middle;opacity:0.3;" width="30" height="30" alt="Website by Circle Tree" src="https://s3.amazonaws.com/myct2/footer-logo-30px.png"/> Circle Tree News', 'byct_support_widget');	
 	remove_meta_box( 'dashboard_secondary', 'dashboard', 'side' );
 	remove_meta_box( 'dashboard_primary', 'dashboard', 'side' );
 	remove_meta_box( 'dashboard_plugins', 'dashboard', 'normal' );
