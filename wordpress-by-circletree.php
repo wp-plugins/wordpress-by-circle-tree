@@ -4,7 +4,7 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 1.5
+Version: 1.6
 Author URI: http://mycircletree.com/
 */ 
 //Start a session for login tracking if not already set
@@ -91,10 +91,7 @@ function byct_custom_admin () {
 }
 add_action('admin_head', 'byct_custom_admin');
 
-function change_wp_login_url() {
-    return bloginfo('url');
-	
-}
+
 
 function byct_admin_footer () {
 	echo '<a href="http://mycircletree.com/client-area/knowledgebase.php?action=displaycat&catid=2" target="_blank">WordPress Video Tutorials</a>';
@@ -119,10 +116,14 @@ function byct_remove_admin_footer () {
 	return false;
 }
 add_filter('admin_footer_text', 'byct_remove_admin_footer');
-function change_wp_login_title() {
-    echo 'Powered by ' . get_option('blogname');
-	
+function byct_login_poweredby($title) {
+    return 'Go to ' . get_option('blogname');
 }
+add_filter('login_headertitle', 'byct_login_poweredby');
+function byct_login_url($url) {
+	return get_bloginfo('home');
+}
+add_filter('login_headerurl', 'byct_login_url');
 
 function byct_menu () {
 	$page = add_options_page('Custom WordPress Website by Circle Tree','Circle Tree Login','manage_options','circle-tree-login','byct_page');
@@ -310,8 +311,6 @@ EOL;
 	}
 }
 add_action('wp_authenticate','byct_login_lockdown');
-add_filter('login_headerurl', 'change_wp_login_url');
-add_filter('login_headertitle', 'change_wp_login_title');
 
 function byct_support_widget() {
 	echo ' <script type="text/javascript">
