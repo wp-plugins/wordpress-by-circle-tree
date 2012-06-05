@@ -4,7 +4,7 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 1.8
+Version: 1.9
 Author URI: http://mycircletree.com/
 */ 
 //Start a session for login tracking if not already set
@@ -50,7 +50,7 @@ add_action('admin_bar_menu', 'byct_admin_bar',50);
  *  TODO add mu support
  */
 function byct_get_plugin_path () {
-	return get_option('siteurl') . "/wp-content/plugins/" . plugin_basename(dirname(__FILE__)); 
+	return plugins_url('',__FILE__); 
 }
 function byct_stylesheet () {
 	// full plugin path
@@ -121,7 +121,7 @@ function byct_login_poweredby($title) {
 }
 add_filter('login_headertitle', 'byct_login_poweredby');
 function byct_login_url($url) {
-	return get_bloginfo('home');
+	return get_bloginfo('url');
 }
 add_filter('login_headerurl', 'byct_login_url');
 
