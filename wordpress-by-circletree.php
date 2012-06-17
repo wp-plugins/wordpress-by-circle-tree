@@ -347,6 +347,8 @@ function byct_dashboard_widgets() {
 	remove_meta_box( 'dashboard_primary', 'dashboard', 'side' );
 	remove_meta_box( 'dashboard_plugins', 'dashboard', 'normal' );
 	remove_meta_box( 'dashboard_incoming_links', 'dashboard', 'normal' );
+	remove_meta_box( 'w3tc_latest', 'dashboard', 'normal' );
+	remove_meta_box( 'w3tc_pagespeed', 'dashboard', 'normal' );
 } 
 
 // Hoook into the 'wp_dashboard_setup' action to register our function
