@@ -3,6 +3,7 @@
 {
 	width: 450px;
 	height: 200px;
+	background-size: inherit;
 }
 #login {
 		width: 450px;
