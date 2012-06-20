@@ -50,7 +50,7 @@ add_action('admin_bar_menu', 'byct_admin_bar',50);
  *  TODO add mu support
  */
 function byct_get_plugin_path () {
-	return plugins_url('',__FILE__); 
+	return WP_PLUGIN_URL.'/wordpress-by-circle-tree/';
 }
 function byct_stylesheet () {
 	// full plugin path
