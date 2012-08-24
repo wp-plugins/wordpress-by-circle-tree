@@ -4,7 +4,7 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 2.0.0
+Version: 2.0.1
 Author URI: http://mycircletree.com/
 */
 defined('LOGIN_LOCKDOWN') OR define('LOGIN_LOCKDOWN', TRUE); 
@@ -327,7 +327,7 @@ final class wp_login_lockdown {
 		$message = 'There have been a number of failed login attempts on your website: '.get_bloginfo('name').PHP_EOL;
 		$message .= 'If you have forgotten your password, please go to: '.PHP_EOL.get_bloginfo('wpurl').'/wp-login.php?action=lostpassword'.PHP_EOL.PHP_EOL;
 		$message .= 'If this is unauthorized activity, please block the remote IP by going here: '.PHP_EOL;
-		$message .= get_bloginfo('wpurl').'/options-general.php?page=circle_tree_login&action=block&ip=' . self::$remote_ip;
+		$message .= get_bloginfo('wpurl').'/wp-admin/options-general.php?page=circle_tree_login&action=block&ip=' . self::$remote_ip;
 		wp_mail(get_bloginfo('admin_email'), $subject, $message);
 	}
 	private function block_ip ($ip) {
