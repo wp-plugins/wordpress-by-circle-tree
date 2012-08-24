@@ -4,7 +4,7 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 2.0.1
+Version: 2.0.2
 Author URI: http://mycircletree.com/
 */
 defined('LOGIN_LOCKDOWN') OR define('LOGIN_LOCKDOWN', TRUE); 
@@ -212,12 +212,19 @@ final class wp_login_lockdown {
 				<p>That IP has been unblocked</p>
 			<?php endif;?>
 			<?php if ($_REQUEST['msg'] == 3) :?>
-				<p>There was an error processing that request. Please reload the page and try again.</p>
+				<p class="error" >There was an error processing that request. Please reload the page and try again.</p>
 			<?php endif;?>
 			<?php if ($_REQUEST['msg'] == 4) :?>
-				<p>Invalid IP.</p>
+				<p class="error" >Invalid IP.</p>
 			<?php endif;?>
 		</div>
+		<script>
+		jQuery(function($) {
+			setTimeout(function  () {
+				$(".updated.inline").slideUp(500); 		  
+			}, 2000);
+		});
+		</script>
 		<?php endif; 
 		$log = $this->get_transient();
 		if ($log) :
