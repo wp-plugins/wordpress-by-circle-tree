@@ -4,7 +4,7 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 2.0.4
+Version: 2.0.5
 Author URI: http://mycircletree.com/
 */
 defined('LOGIN_LOCKDOWN') OR define('LOGIN_LOCKDOWN', TRUE); 
@@ -352,14 +352,14 @@ final class wp_login_lockdown {
 		if (in_array($ip, $current)) {
 			$key = array_search($ip, $current);
 			unset($current[ $key ]);
-			update_option($this::BLOCKED_IP_NAME, $current);
+			update_option(self::BLOCKED_IP_NAME, $current);
 			return true;
 		} else {
 			return false;
 		}
 	}
 	private function get_blocked_ips () {
-		return get_option($this::BLOCKED_IP_NAME);
+		return get_option(self::BLOCKED_IP_NAME);
 	}
 	private function is_ip_blocked () {
 		$ips = $this->get_blocked_ips();
@@ -430,7 +430,7 @@ final class wp_login_lockdown {
 		else return $logins['reset'][ self::$remote_ip ];
 	}
 	private function get_transient() {
-		return get_transient($this::TRANSIENT_NAME);
+		return get_transient(self::TRANSIENT_NAME);
 	}
 	private function reset_failed_logins() {
 		$current = $this->get_transient();
@@ -463,7 +463,7 @@ final class wp_login_lockdown {
 		return get_transient('byct_login_log');
 	}
 	private function save_transient($value) {
-		set_transient($this::TRANSIENT_NAME, $value, $this::TRANSIENT_TIMEOUT);
+		set_transient(self::TRANSIENT_NAME, $value, self::TRANSIENT_TIMEOUT);
 	}
 	private function get_total_failures_allowed() {
 		return LOGIN_LOCKDOWN_ATTEMPTS;
