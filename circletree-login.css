@@ -1,41 +1,149 @@
 /*Login & Admin Page Style*/
+/*+clearfix {*/
+#ip_logged_notice:after
+{
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+	font-size: 0;
+}
+#ip_logged_notice
+{
+	display: inline-block;
+}
+#ip_logged_notice
+{
+/*\*/
+	display: block;
+/**/
+	-height: 1px;
+}
+/*+}*/
 #login H1 A
 {
 	width: 450px;
 	height: 200px;
 	background-size: inherit;
 	background-image: url(header.png);
+	/*+placement:margin-auto 0px 0px;*/
+	margin-left: auto;
+	margin-right: auto;
+	position: relative;
+	left: 0px;
+	top: 0px;
 }
-#login {
-		width: 450px;
-	}
-
-	#header-logo {
-		background-image: url(https://s3.amazonaws.com/myct2/footer-logo-16px.png) !important;
-	}
-#login_error {width:100%;margin:0px auto 20px auto;}	
-#login_error h2 { line-height:1.3}
-#lockdown h1{
+#login
+{
+	width: 550px;
+}
+#header-logo
+{
+	background-image: url(https://s3.amazonaws.com/myct2/footer-logo-16px.png) !important;
+}
+#login_error
+{
+	width: 96%;
+	margin: 0px auto 20px;
+}
+#login_error H2
+{
+	line-height: 1.3;
+	font-size: 16pt;
+}
+#lockdown H1
+{
 	color: #000000;
 }
-#lockdown {
+#lockdown
+{
 	background-color: #FFEFEF;
 	text-align: center;
-	padding:20px;
+	padding: 20px;
 	border: 4px double #FF0000;
-	min-width:320px;
+	min-width: 320px;
 }
-#lockdown #recaptcha_widget_div {
+#lockdown #recaptcha_widget_div
+{
 	margin: 0px auto;
 	width: 318px;
 }
-#error-page {
-	min-width:320px;
+#error-page
+{
+	min-width: 320px;
 }
-#reset_log .warning:before {
+#reset_log .warning:before
+{
 	content: 'WARNING: This is your current IP';
 	display: block;
 }
-#reset_log .warning {
+#reset_log .warning
+{
 	background-color: #FFDDDD;
+}
+/**
+*     Login page notices
+ */
+.byct_lockdown
+{
+	color: #000;
+	font-size: 10pt;
+	text-align: center;
+}
+H2.byct_lockdown
+{
+	font-size: 12pt;
+}
+/*[clearfix]*/#ip_logged_notice
+{
+	font-size: 8pt;
+	width: 90%;
+	/*+placement:margin-auto 0px 0px;*/
+	margin-left: auto;
+	margin-right: auto;
+	position: relative;
+	left: 0px;
+	top: 0px;
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+#ip_logged_notice .ip_logged
+{
+	/*+placement:float-left 11px 0px;*/
+	float: left;
+	position: relative;
+	left: 11px;
+	top: 0px;
+	width: 44%;
+	height: 100%;
+	margin-top: 7px;
+}
+#ip_logged_notice .notice
+{
+	width: 50%;
+	/*+placement:float-right 0px 0px;*/
+	float: right;
+	position: relative;
+	left: 0px;
+	top: 0px;
+	color: #696969;
+	font-style: italic;
+}
+#backtoblog A
+{
+	font-size: 10pt;
+	display: block;
+	margin-left: -20px;
+	text-decoration: none;
+}
+#login #nav A
+{
+	font-size: 10pt;
+	text-decoration: none;
+}
+#ip_logged_notice .ip_logged
+{
+	height: 100%;
+	display: block;
 }

@@ -135,7 +135,7 @@ final class wp_by_ct {
 	}
 	public function admin_bar_icon () {
 		if (is_user_logged_in() && is_admin_bar_showing())
-			echo wp_by_ct::CIRCLETREE_ADMINBAR_ICON_STYLE;
+			echo self::CIRCLETREE_ADMINBAR_ICON_STYLE;
 	}
 }
 new wp_by_ct;
@@ -274,12 +274,21 @@ final class wp_login_lockdown {
 	</div>
 		<?php 
 	}
-	public function login_form_secure () {
-		echo  '<h2 style="text-align:center">';
-		echo '	<img style="vertical-align:middle;" src="'.wp_by_ct::get_url().'/lock.png" height="" width="" alt="Lock Icon" />';
-		echo '	Secure Login <a target="_blank" style="text-decoration:none;color:#000" href="http://mycircletree.com">by Circle Tree ';
-		echo '	<img style="vertical-align:middle;opacity:0.5;" width="30" height="30" alt="Website by Circle Tree" src="https://s3.amazonaws.com/myct2/footer-logo-30px.png"/></a></h2>';
-		echo  '<h3 style="text-align:center">IP Logged '.self::$remote_ip.'</h3>';
+	public function login_form_secure () { ?>
+		<h2 class="byct_lockdown" >
+			<img style="vertical-align:middle;" src="<?php echo wp_by_ct::get_url(); ?>/lock.png" alt="Lock Icon" />
+			Secure Login 
+			<a target="_blank" style="text-decoration:none;color:#000" href="http://mycircletree.com">
+				by Circle Tree
+			</a>
+		</h2>
+		<div class="byct_lockdown" id="ip_logged_notice">
+			<div class="two_cols">
+				<span class="ip_logged">IP Address Logged <?php echo self::$remote_ip ?></span>
+				<span class="notice">You will be locked out and an administrator will be notified after <?php echo LOGIN_LOCKDOWN_ATTEMPTS?> failed login <?php echo _n('attempt', 'attempts', LOGIN_LOCKDOWN_ATTEMPTS)?></span>
+			</div>
+		</div>
+	<?php 
 	}
 	public function login_failed ($username) {
 		$this->log('Failed login from IP: '.self::$remote_ip.'. Username: '.$username);
@@ -363,7 +372,7 @@ final class wp_login_lockdown {
 	}
 	private function is_ip_blocked () {
 		$ips = $this->get_blocked_ips();
-		if (FALSE == $ips) return false;
+		if (FALSE == $ips) return false; //No Ips Blocked
 		return in_array(self::$remote_ip, $ips);
 	}
 	private function display_capcha_form() {
