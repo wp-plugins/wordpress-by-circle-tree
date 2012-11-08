@@ -4,7 +4,7 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 2.0.7
+Version: 2.0.8
 Author URI: http://mycircletree.com/
 */
 defined('LOGIN_LOCKDOWN') OR define('LOGIN_LOCKDOWN', TRUE); 
@@ -241,7 +241,9 @@ final class wp_login_lockdown {
 			</ul>
 			<?php endif; ?>
 		<?php else:?>
+		<div class="updated">
 			<p>Log is empty!</p>
+		</div>
 		<?php endif;?>
 		<h3>Manually Block an IP:</h3>
 		<form method="GET" action="<?php echo admin_url('options-general.php')?>">
