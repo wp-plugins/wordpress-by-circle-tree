@@ -4,7 +4,7 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 2.0.6
+Version: 2.0.7
 Author URI: http://mycircletree.com/
 */
 defined('LOGIN_LOCKDOWN') OR define('LOGIN_LOCKDOWN', TRUE); 
@@ -303,7 +303,7 @@ final class wp_login_lockdown {
 		return $message;
 	}
 	public function help ($text, $screen_id, $screen) {
-		if ($screen_id = $this->page_id) {
+		if ($screen_id == $this->page_id) {
 			$text = ' <h1>Overview</h1>';
 			$text .= '<p>Every failed login will set a transient, and if it is greater than a defined threshhold, it will trigger a reCAPTCHA';
 			$text .= ' challenge. If that threshold is broken it will send an administrator notification of the failed attempts. All failed logins are';
