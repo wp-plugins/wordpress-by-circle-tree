@@ -4,7 +4,7 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 2.0.8
+Version: 2.0.9
 Author URI: http://mycircletree.com/
 */
 defined('LOGIN_LOCKDOWN') OR define('LOGIN_LOCKDOWN', TRUE); 
@@ -295,6 +295,7 @@ final class wp_login_lockdown {
 	public function login_failed ($username) {
 		$this->log('Failed login from IP: '.self::$remote_ip.'. Username: '.$username);
 		$this->set_failed_login();
+		status_header(401);
 	}
 	public function login_error_message ($error) {
 		$message = '<h2 class="login_error" >'.$error;
