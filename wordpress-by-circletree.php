@@ -67,7 +67,7 @@ final class wp_by_ct {
 	 */
 	public static function get_url() {
 		if (is_null(self::$plugin_url)) {
-			if (is_multisite())
+			if (is_multisite() && file_exists(WPMU_PLUGIN_URL.'/'.wp_by_ct::PLUGIN_DIR_NAME.'/'))
 				self::$plugin_url = WPMU_PLUGIN_URL.'/'.wp_by_ct::PLUGIN_DIR_NAME.'/';
 			else
 				self::$plugin_url = WP_PLUGIN_URL.'/'.wp_by_ct::PLUGIN_DIR_NAME.'/';
