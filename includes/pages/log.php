@@ -64,7 +64,7 @@
 				<input type="hidden" name="action" value="whitelist"/>
 				<input type="hidden" name="nonce" value="<?php echo wp_create_nonce('wp_login_lockdown'); ?>"/>
 				<input type="text" name="ip" size="12"/>
-				<?php submit_button('Block', 'primary', null, false);?>
+				<?php submit_button('Allow', 'primary', null, false);?>
 			</form>
 		</div> 
 		<?php  
