@@ -528,6 +528,9 @@ final class wp_login_lockdown {
 	public function  is_IP_whitelisted ($ip)
 	{
 	    $ips = $this->get_whitelisted_ips();
+	    if (empty($ips)) {
+	        return false;
+        }
 	    return in_array($ip, $ips);
 	}
 	/**
