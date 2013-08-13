@@ -47,6 +47,16 @@ final class wp_login_lockdown {
             'administrator',
             'root'
     );
+    private function get_blacklisted_usernames ()
+    {
+        $defaults = $this->admin_usernames;
+        $usernames_string = $this->get_setting('blacklisted_admin_usernames');
+        $usernames_array = array();
+        if ($usernames_string != '') {
+            $usernames_array = explode(',', $usernames_string);
+        }
+        return array_merge($usernames_array, $defaults);
+    }
     /**
      * Registered Settings
      * @var array
@@ -251,8 +261,15 @@ final class wp_login_lockdown {
                         'type'    =>    'checkbox',
                         'label'   =>    'Blacklist IPs using the Admin User Account',
                         'tooltip' => 	'Automatically block IP addresses that attempt to login ' . //Make sure you concat long strings!
-                        'using ('.rtrim(implode(', ', $this->admin_usernames), ', ').') usernames',
+                        'using ('.rtrim(implode(', ', $this->get_blacklisted_usernames()), ', ').') usernames',
                         'default' =>     true
+                ),
+                array(
+                        'name'    =>     'blacklisted_admin_usernames',
+                        'type'    =>    'text',
+                        'size'    =>    80,
+                        'label'   =>    'Additional Blacklisted Usernames',
+                        'tooltip' =>    'CSV Usernames to automatically blacklist', 
                 ),
                 array(
                         'name'    =>     'login_lockdown_attempts',
@@ -396,7 +413,7 @@ final class wp_login_lockdown {
 	}
 	public function login_failed ($username) {
         if ( $this->get_setting('blacklist_admin') ) {
-            if (in_array(trim(strtolower($username)), $this->admin_usernames)) {
+            if (in_array(trim(strtolower($username)), $this->get_blacklisted_usernames())) {
                 $this->block_ip(self::$remote_ip);
                 $this->log('Blacklisted Username', $username, self::$remote_ip);
                 wp_redirect(get_bloginfo('url'));
