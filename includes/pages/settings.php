@@ -62,6 +62,9 @@
                                 <?php endforeach;?>
                             </select>
                         <?php break;?>
+                        <?php case 'hidden':?>
+                        <?php //these are hard coded into the register_settings method?>
+                        <?php break;?>
                         <?php default: ?>
                             Unknown $type = <?php echo $setting['type'];?>
                         <?php break; 

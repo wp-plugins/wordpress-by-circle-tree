@@ -64,14 +64,19 @@ final class wp_login_lockdown {
     private $settings;
     function __construct() {
         $this->get_remote_ip();
+        
+        //Actions
         add_action('login_form', array(&$this, 'login_form_secure'));
-        add_filter('wp_login_failed',array(&$this, 'login_failed'));
-        add_filter('login_errors',array(&$this, 'login_error_message'));
-        add_filter('wp_login',array(&$this, 'login_success'));
         add_action('login_init', array(&$this, 'login_lockdown'));
         add_action('admin_init', array(&$this, 'admin_init'));
         add_action('admin_menu', array(&$this, 'admin_menu'));
         add_action('right_now_table_end', array($this, 'admin_home_failed_logins'));
+        add_action('wp_ajax_by_ct_action', array($this, 'admin_init'));
+        
+        //Filters
+        add_filter('wp_login_failed',array(&$this, 'login_failed'));
+        add_filter('login_errors',array(&$this, 'login_error_message'));
+        add_filter('wp_login',array(&$this, 'login_success'));
         add_filter('validate_username', array($this, 'validate_username'), 10, 2);
     }
     /**
@@ -98,7 +103,17 @@ final class wp_login_lockdown {
         echo    '<td class="t"><a href="'.$url.'">Failed Logins</a></td>';
         echo '</tr>';
     }
-    
+    /**
+     * Response codes that indicate an error
+     * @var array
+     */
+    public $error_codes = array(
+    	    3,
+            4,
+            5,
+            9,
+            10
+    );
     public function admin_init() {
         $this->register_settings();
         if (! isset($_SESSION) ) {
@@ -108,62 +123,97 @@ final class wp_login_lockdown {
                 'circle_tree_login_settings',
                 'circle_tree_login_log',
         );
+        
         if (isset($_REQUEST['action']) && isset($_REQUEST['page']) && in_array($_REQUEST['page'], $admin_action_pages)) {
-            if (! current_user_can('manage_options') || defined('DOING_AJAX')) {
+            $redirect = 'index.php?page=circle_tree_login_log';
+            if (! current_user_can('manage_options')) {
+                $_SESSION['msg'] = 5;
+                wp_redirect($redirect);
                 return;
             }
             //Log Page Actions
-            if (wp_verify_nonce($_REQUEST['nonce'], 'wp_login_lockdown')) {
-                $redirect = 'index.php?page=circle_tree_login_log';
-                //Add friendly read only message
-                if (! current_user_can('manage_options')) {
-                    $_SESSION['msg'] = 5;
-                    wp_redirect($redirect);
+            if ('circle_tree_login_log' == $_REQUEST['page']) {
+                if (isset($_REQUEST['new']) && isset($_REQUEST['ip'])) {
+                    //Skip ip based nonce validation for new (manually entered) IP's
+                    $temp_ip = $_REQUEST['ip'];
+                    unset($_REQUEST['ip']);
+                }
+                if (wp_verify_nonce($_REQUEST['nonce'], 'wp_login_lockdown'.(isset($_REQUEST['ip']) ? $_REQUEST['ip'] : ''))) {
+                    //Reset IP
+                    if (isset($_REQUEST['new'])) {
+                        $_REQUEST['ip'] = $temp_ip;
+                        unset($temp_ip);
+                    }
+                    $action_field = defined('DOING_AJAX') ? $_REQUEST['ajax_action'] : $_REQUEST['action'];
+                    switch ($action_field) {
+                    	case 'block':
+                    	    if (filter_var($_REQUEST['ip'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
+                    	        $message_code = $this->block_ip($_REQUEST['ip']) ?  1 : 9;
+                    	    } else {
+                    	        $message_code = 4;
+                    	    }
+                    	    break;
+                    	case 'unblock':
+                    	    $success = $this->unblock_ip($_REQUEST['ip']);
+                    	    if ($success) {
+                    	        $message_code = 2;
+                    	    } else {
+                    	        $message_code = 3;
+                    	    }
+                    	    break;
+                    	case 'clear_log':
+                    	    if (current_user_can('activate_plugins')) {
+                    	        $this->clear_log();
+                    	        $message_code = 6;
+                    	    } else {
+                    	        $message_code = 5;
+                    	    }
+                    	    break;
+                    	case 'whitelist':
+                    	    if (filter_var($_REQUEST['ip'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
+                        	    $message_code = $this->whitelist_ip($_REQUEST['ip']) ? 7 : 9;
+                    	    } else {
+                    	        $message_code = 4;
+                    	    }
+                    	    break;
+                    	case 'unwhitelist':
+                    	    $success = $this->unwhitelist_ip($_REQUEST['ip']);
+                    	    if ($success) {
+                    	        $message_code = 8;
+                    	    } else {
+                    	        $message_code = 3;
+                    	    }
+                    	    break;
+                    	default:
+                    	   $message_code = 12;
+                	   break;    
+                    }
+                    if (defined('DOING_AJAX')) {
+                        $contents = '';
+                        if (! in_array($message_code, $this->error_codes)) {
+                            ob_start();
+                            $this->log_page();
+                            $contents = ob_get_contents();
+                            ob_end_clean();
+                        }
+                        header('Content-Type: application/json');
+                        echo json_encode(array('code' => $message_code, 'html' => $contents));
+                    } else {
+                        $_SESSION['msg'] = $message_code;
+                        wp_redirect($redirect);
+                    }
                     die;
-                }
-                switch ($_REQUEST['action']) {
-                	case 'block':
-                	    if (filter_var($_REQUEST['ip'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
-                	        $_SESSION['msg'] = $this->block_ip($_REQUEST['ip']) ?  1 : 9;
-                	    } else {
-                	        $_SESSION['msg'] = 4;
-                	    }
-                	    break;
-                	case 'unblock':
-                	    $success = $this->unblock_ip($_REQUEST['ip']);
-                	    if ($success) {
-                	        $_SESSION['msg'] = 2;
-                	    } else {
-                	        $_SESSION['msg'] = 3;
-                	    }
-                	    break;
-                	case 'clear_log':
-                	    if (current_user_can('activate_plugins')) {
-                	        $this->clear_log();
-                	        $_SESSION['msg'] = 6;
-                	    } else {
-                	        $_SESSION['msg'] = 5;
-                	    }
-                	    break;
-                	case 'whitelist':
-                	    if (filter_var($_REQUEST['ip'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
-                    	    $_SESSION['msg'] = $this->whitelist_ip($_REQUEST['ip']) ? 7 : 9;
-                	    } else {
-                	        $_SESSION['msg'] = 4;
-                	    }
-                	    break;
-                	case 'unwhitelist':
-                	    $success = $this->unwhitelist_ip($_REQUEST['ip']);
-                	    if ($success) {
-                	        $_SESSION['msg'] = 8;
-                	    } else {
-                	        $_SESSION['msg'] = 3;
-                	    }
-                	    break;
-                }
-                wp_redirect($redirect);
-                die;
-            }
+                } else {
+                    //Invalid NONCE
+                    if (defined('DOING_AJAX')) {
+                        echo 10;
+                    } else {
+                        $_SESSION['msg'] = 10;
+                        wp_redirect($redirect);
+                    }
+                    die;
+                }//End nonce check
+            }//End log page check
             //Settings Page actions
             //Save Settings
             if (
@@ -228,7 +278,7 @@ final class wp_login_lockdown {
      * @param string $name
      * @return mixed value on success, false on failure / not set
      */
-    public static function  get_setting($name)
+    public function get_setting($name)
     {
         $options = get_option(self::SETTINGS_KEY);
         if (isset($options[$name])) {
@@ -237,9 +287,8 @@ final class wp_login_lockdown {
                 return true;
             }
             return $value;
-        } else {
-            return false;
         }
+        return false;
     }
     private function register_settings() {
         $this->settings = array(
@@ -250,7 +299,7 @@ final class wp_login_lockdown {
                         'default' =>     false
                 ),
                 array(
-                        'name'    =>     'admin_email',
+                        'name'    =>    'admin_email',
                         'type'    =>    'text',
                         'size'    =>    40,
                         'label'   =>    'Send Email Notifications to',
@@ -260,7 +309,8 @@ final class wp_login_lockdown {
                         'name'    =>    'blacklist_admin', //HTML safe option key
                         'type'    =>    'checkbox',
                         'label'   =>    'Blacklist IPs using the Admin User Account',
-                        'tooltip' => 	'Automatically block IP addresses that attempt to login ' . //Make sure you concat long strings!
+                        'tooltip' => 	'Automatically block IP addresses that attempt to login ' . 
+                        //Make sure you concat long strings, or tooltip will break!
                         'using ('.rtrim(implode(', ', $this->get_blacklisted_usernames()), ', ').') usernames',
                         'default' =>     true
                 ),
@@ -268,8 +318,8 @@ final class wp_login_lockdown {
                         'name'    =>     'blacklisted_admin_usernames',
                         'type'    =>    'text',
                         'size'    =>    80,
-                        'label'   =>    'Additional Blacklisted Usernames',
-                        'tooltip' =>    'CSV Usernames to automatically blacklist', 
+                        'label'   =>    'Additional Blacklisted Usernames (CSV)',
+                        'tooltip' =>    'Comma Separated Usernames to automatically blacklist', 
                 ),
                 array(
                         'name'    =>     'login_lockdown_attempts',
@@ -351,6 +401,7 @@ final class wp_login_lockdown {
         add_action("load-{$this->settings_page_id}", array($this, 'load_settings_page'));
         add_action("admin_print_scripts-{$this->settings_page_id}", array(&$this, 'admin_scripts'));
         add_action("admin_print_scripts-{$this->log_page_id}", array(&$this, 'admin_scripts'));
+        add_action("admin_print_scripts-{$this->log_page_id}", array(&$this, 'admin_scripts_log'));
     }
     public function load_settings_page ()
     {
@@ -375,8 +426,19 @@ final class wp_login_lockdown {
     }
     public function admin_scripts () {
         wp_enqueue_script('jquery');
-        wp_register_style('byct_css', wp_by_ct::get_url() . '/circletree-login'.(WP_DEBUG ? '' : '.min').'.css');
+        wp_register_style('byct_css', wp_by_ct::get_url() . '/css/circletree-login'.(WP_DEBUG ? '' : '.min').'.css');
         wp_enqueue_style('byct_css');
+        wp_register_script('byct_js', wp_by_ct::get_url() . '/js/jquery.by_ct.js');
+        wp_enqueue_script('byct_js');
+    }
+    public function admin_scripts_log ()
+    {
+        wp_register_script('datatable', wp_by_ct::get_url() . '/js/jquery.dataTables'.(WP_DEBUG ? '' : '.min').'.js');
+        wp_enqueue_script('datatable');
+        
+        wp_register_style('datatable', wp_by_ct::get_url() . '/css/jquery.dataTables.css', array('byct_css'));
+        wp_enqueue_style('datatable');
+
     }
     public function log_page()
     {
@@ -426,7 +488,7 @@ final class wp_login_lockdown {
 	}
 	public function login_error_message ($error) {
         if ( $this->is_IP_whitelisted(self::$remote_ip)) {
-            return $error;
+            return '<h2 class="login_error" >' . $error . '</h2>';
         }
         if (isset($_GET['action']) && 'lostpassword' == $_GET['action']) {
             //WordPress Doesn't call the login failed action on invalid username / password
@@ -441,7 +503,7 @@ final class wp_login_lockdown {
 		if (! strstr($error, 'empty') ) {
 			$message .= $this->get_lockdown_message().'<br/>';
 		}
-		return $message;
+		return $message . '</h2>';
 	}
 	public function login_success () {
 		$this->reset_failed_logins();
@@ -553,10 +615,11 @@ final class wp_login_lockdown {
 	/**
 	 * Whitelist an IP
 	 * @param string $ip
+	 * @return bool true on success, false if already whitelisted
 	 */
 	private function whitelist_ip ($ip) {
         $current = $this->get_whitelisted_ips();
-        if (in_array($ip, $current)) {
+        if (false !== $current && in_array($ip, $current)) {
             return false;
         }
         if (in_array($ip, $this->get_blocked_ips())) {
