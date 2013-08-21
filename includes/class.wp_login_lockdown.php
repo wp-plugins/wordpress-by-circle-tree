@@ -451,7 +451,8 @@ final class wp_login_lockdown {
     private function display_capcha_form() {
         ob_start();
         require_once wp_by_ct::get_path() . 'includes' . DS . 'pages'. DS. 'captcha.php';
-        $str = ob_get_clean();
+        $str = ob_get_contents();
+        ob_end_clean();
         wp_die($str,'ERROR | TOO MANY LOGIN ATTEMPTS', array('response'=>503));
     }
 	public function login_form_secure () { ?>
@@ -650,10 +651,10 @@ final class wp_login_lockdown {
         }
     }
     private function get_whitelisted_ips() {
-        return get_option(self::WHITELISTED_IP_NAME);
+        return get_option(self::WHITELISTED_IP_NAME, array());
     }
 	private function get_blocked_ips () {
-		return get_option(self::BLOCKED_IP_NAME);
+		return get_option(self::BLOCKED_IP_NAME, array());
 	}
 	private function is_ip_blocked () {
 		$ips = $this->get_blocked_ips();
