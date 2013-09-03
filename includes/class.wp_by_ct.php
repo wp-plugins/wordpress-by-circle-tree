@@ -54,7 +54,7 @@ final class wp_by_ct {
         add_filter('admin_footer_text', '__return_false');
     }
     public static function echo_stylesheet_link () {
-        echo '<link rel="stylesheet" type="text/css" href="' . wp_by_ct::get_url() . '/circletree-login.css" />';
+        echo '<link rel="stylesheet" type="text/css" href="' . wp_by_ct::get_url() . 'css/circletree-login.css" />';
     }
     /**
      * get the url for the plugin directory with a trailing slash

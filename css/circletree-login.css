@@ -400,6 +400,24 @@ h2 sup {
     position: absolute;
     z-index: 99;
 }
+.interim-login #login H1 A {
+    height: 110px;
+}
+.interim-login #login form {
+    padding-top:5px; 
+}
+.interim-login #ip_logged_notice {
+    display: none;
+}
+.interim-login h2.byct_lockdown {
+    margin-bottom: 5px;
+}
+@media screen and (min-height: 520px)
+{
+    .interim-login #ip_logged_notice {
+        display: block;
+    }
+}
 @media screen and (max-width: 480px)
 {
     #loginform {
@@ -421,7 +439,7 @@ h2 sup {
         min-width: 330px;
     }
     #login {
-        width: 100%;
+        width: 98%;
         max-width: 450px;
     }
     #loginform {

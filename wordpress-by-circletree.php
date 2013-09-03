@@ -4,7 +4,7 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 3.0.6
+Version: 3.0.7
 Author URI: http://mycircletree.com/
 */
 /**
@@ -15,12 +15,13 @@ defined('LOGIN_LOCKDOWN') OR define('LOGIN_LOCKDOWN', TRUE);
  * Shorthand utility
  */ 
 defined('DS') OR define('DS', DIRECTORY_SEPARATOR); 
+require_once WP_PLUGIN_DIR . DS . 'wordpress-by-circle-tree' . DS . 'includes' . DS . 'class.wp_login_lockdown.php';
 /**
  * Number of password attempts before displaying a CAPTCHA
  */
-require_once WP_PLUGIN_DIR . DS . 'wordpress-by-circle-tree' . DS . 'includes' . DS . 'class.wp_login_lockdown.php';
+$lockdown = new wp_login_lockdown;
 if (! defined('LOGIN_LOCKDOWN_ATTEMPTS'))  {
-	$setting = wp_login_lockdown::get_setting('login_lockdown_attempts');
+	$setting = $lockdown->get_setting('login_lockdown_attempts');
 	//Default override
 	if (false === $setting) {
 		$setting = 3;
@@ -41,4 +42,4 @@ defined('DAY_IN_SECONDS') OR define('DAY_IN_SECONDS', 86400);
 require_once WP_PLUGIN_DIR . DS . 'wordpress-by-circle-tree' . DS . 'includes' . DS . 'class.wp_by_ct.php';
 
 new wp_by_ct;
-new wp_login_lockdown;
+

@@ -9,6 +9,9 @@ function refresh_form ()
 	<?php submit_button('Refresh', 'mini', '', false);?>
 </form>
 <?php 
+}
+if (! isset($_SESSION['msg'])) {
+    $_SESSION['msg'] = -1;
 } 
 /**
  * @var wp_login_lockdown $this 
@@ -59,10 +62,10 @@ function refresh_form ()
 	    <div class="byct_messages code_10 error <?php if ($_SESSION['msg'] != 10) :?>hidden<?php endif;?>">
 		    <p>Please refresh the page and try again.</p>
 	    </div>
-	    <div class="byct_messages code_11 error <?php if ($_SESSION['msg'] != 10) :?>hidden<?php endif;?>">
+	    <div class="byct_messages code_11 error <?php if ($_SESSION['msg'] != 11) :?>hidden<?php endif;?>">
 		    <p>Private IP Addresses are not allowed.</p>
 	    </div>
-	    <div class="byct_messages code_12 updated <?php if ($_SESSION['msg'] != 10) :?>hidden<?php endif;?>">
+	    <div class="byct_messages code_12 updated <?php if ($_SESSION['msg'] != 12) :?>hidden<?php endif;?>">
 		    <p>Refreshed.</p>
 	    </div>
 		<?php if (isset($_SESSION['msg'])) : ?>
