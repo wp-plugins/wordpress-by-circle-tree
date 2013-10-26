@@ -521,11 +521,13 @@ final class wp_login_lockdown {
 		//Redirect blocked IP'S to homepage
 		if ( $this->is_ip_blocked() ) {
 			wp_redirect(get_bloginfo('url'));
+			die;
 		}
 		//Validate captcha
 		if ($this->valid_captcha()) {
 			$this->reset_failed_logins();
-			wp_redirect('wp-login.php');			
+			wp_redirect('wp-login.php');
+			die;			
 		}
 		
 		//Check number of resets (full CAPTCHA cycles)
