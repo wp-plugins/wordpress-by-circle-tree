@@ -4,7 +4,7 @@ Plugin Name: WordPress by Circle Tree
 Plugin URI: http://mycircletree.com/
 Description: Secure Login Screen for Circle Tree powered websites
 Author: Circle Tree, LLC
-Version: 3.0.8
+Version: 3.0.9
 Author URI: http://mycircletree.com/
 */
 /**

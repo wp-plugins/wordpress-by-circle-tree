@@ -515,7 +515,7 @@ final class wp_login_lockdown {
             return;
         }
         //Check whitelist
-		if ( $this->is_IP_whitelisted(self::$remote_ip)) {
+		if ( $this->is_IP_whitelisted()) {
             return;
         }
 		//Redirect blocked IP'S to homepage
@@ -607,8 +607,11 @@ final class wp_login_lockdown {
 	 * @param string $ip
 	 * @return boolean
 	 */
-	public function  is_IP_whitelisted ($ip)
+	public function  is_IP_whitelisted ($ip = null)
 	{
+	    if (is_null($ip)) {
+            $ip = self::$remote_ip;
+        }
 	    $ips = $this->get_whitelisted_ips();
 	    if (empty($ips)) {
 	        return false;

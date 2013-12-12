@@ -6,12 +6,18 @@ final class wp_by_ct {
      */
     const CIRCLETREE_ADMINBAR_ICON_STYLE = '<style>
 		#wp-admin-bar-wp-logo > .ab-item .ab-icon,
+        #wpadminbar>#wp-toolbar>#wp-admin-bar-root-default #wp-admin-bar-wp-logo .ab-icon,
 		#wpadminbar.nojs #wp-admin-bar-wp-logo:hover > .ab-item .ab-icon,
 		#wpadminbar #wp-admin-bar-wp-logo.hover > .ab-item .ab-icon {
-				background-image: url("https://myct2.s3.amazonaws.com/footer-logo2-16px.png");
+				background-image: url("https://myct2.s3.amazonaws.com/footer-logo2-16px.png") !important;
+                background-repeat: no-repeat;
 				background-size: inherit !important;
+                font: none;
 				background-position:center center;
 			}
+            #wpadminbar #wp-admin-bar-wp-logo>.ab-item .ab-icon:before {
+                content: none !important;
+            }
 	        @media screen and (min-resolution: 120dpi),
             (-webkit-min-device-pixel-ratio: 1.5),
             (min--moz-device-pixel-ratio: 1.5),
@@ -20,8 +26,10 @@ final class wp_by_ct {
             (min-resolution: 1.5dppx) {
 	            #wp-admin-bar-wp-logo > .ab-item .ab-icon,
 		        #wpadminbar.nojs #wp-admin-bar-wp-logo:hover > .ab-item .ab-icon,
+                #wpadminbar>#wp-toolbar>#wp-admin-bar-root-default #wp-admin-bar-wp-logo:hover .ab-icon,
+                #wpadminbar>#wp-toolbar>#wp-admin-bar-root-default #wp-admin-bar-wp-logo .ab-icon,
 		        #wpadminbar #wp-admin-bar-wp-logo.hover > .ab-item .ab-icon {
-	                background-image: url("https://myct2.s3.amazonaws.com/footer-logo2-32px.png");
+	                background-image: url("https://myct2.s3.amazonaws.com/footer-logo2-32px.png") !important;
 	                background-size: 16px 16px !important;
 	            }
 	        }
@@ -43,7 +51,7 @@ final class wp_by_ct {
         add_action('in_admin_footer', array(&$this , 'admin_footer_links'));
         add_action('login_head', array(&$this, 'echo_stylesheet_link'));
         add_action('wp_footer', array(&$this, 'admin_bar_icon'));
-        add_action('admin_head', array($this, 'admin_bar_icon'));
+        add_action('admin_head', array($this, 'admin_bar_icon'), 20);
         //Remove WordPress/version # from Head for security purposes
         remove_action('wp_head', 'wp_generator');
         /**
